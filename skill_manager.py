@@ -8,8 +8,8 @@ import sys
 from pathlib import Path
 
 REPO_DIR = Path(__file__).resolve().parent
-CONFIG_PATH = Path.home() / ".config" / "skill-manager" / "config.json"
-SKILL_NAME = "claude-skill-manager"
+CONFIG_PATH = Path.home() / ".config" / "skm" / "config.json"
+SKILL_NAME = "skm"
 
 
 def write_config():
@@ -58,13 +58,13 @@ def cmd_install(args):
     install_skill(target)
     print()
     print("Done. Open a Claude Code session in your project and say:")
-    print('  "list skills in the library"')
+    print('  "SKM list"  or  "SKM install"  or  "SKM save"')
 
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="skill-manager",
-        description="Manage Claude Code skills and commands.",
+        prog="skm",
+        description="SKM — Manage Claude Code skills and commands.",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 

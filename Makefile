@@ -1,6 +1,6 @@
 BIN_DIR := $(HOME)/.local/bin
 SCRIPT   := $(abspath skill_manager.py)
-LINK     := $(BIN_DIR)/skill-manager
+LINK     := $(BIN_DIR)/skm
 
 .PHONY: install uninstall
 

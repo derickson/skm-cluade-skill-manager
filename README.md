@@ -1,21 +1,23 @@
-# claude-skill-manager
+# SKM — Skill Manager for Claude Code
 
-A central library and CLI tool for managing [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills and commands across projects.
+A central library and CLI tool (`skm`) for managing [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills and commands across projects.
+
+All trigger phrases, CLI commands, config paths, and skill names are prefixed with **SKM** to avoid collision with any future Anthropic-native skill management features.
 
 ## What's in this repo
 
 ```
 src/
   skills/
-    claude-skill-manager/
-      SKILL.md       # The in-Claude interactive skill manager (installed into projects)
+    skm/
+      SKILL.md       # The SKM in-Claude skill (installed into projects)
 .claude/
-  commands/          # Library of distributable slash commands
-skill_manager.py     # CLI tool
-Makefile             # install / uninstall
+  commands/          # SKM library — distributable slash commands
+skill_manager.py     # SKM CLI (installed as `skm`)
+Makefile             # skm install / uninstall
 ```
 
-`src/` holds the skill manager itself — it is installed into other projects by the CLI, not managed as library content. `.claude/commands/` and `.claude/skills/` (when present) are the distributable library that the skill manager operates on.
+`src/` holds the SKM skill itself — it is installed into other projects by the CLI, not managed as library content. `.claude/commands/` and `.claude/skills/` (when present) are the distributable library that SKM operates on.
 
 ## Setup
 
@@ -27,7 +29,11 @@ cd ~/dev/claude-skill-manager
 make install
 ```
 
-This creates a symlink at `~/.local/bin/skill-manager`. Make sure that directory is on your `PATH` (add `export PATH="$HOME/.local/bin:$PATH"` to your shell profile if needed).
+This creates a symlink at `~/.local/bin/skm`. Make sure that directory is on your `PATH`:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"   # add to ~/.zshrc or ~/.bashrc
+```
 
 To remove the symlink:
 
@@ -35,37 +41,43 @@ To remove the symlink:
 make uninstall
 ```
 
-### 2. Install the skill into a project
+### 2. Install SKM into a project
 
 ```bash
-skill-manager install /path/to/your/project
+skm install /path/to/your/project
 ```
 
 Or from inside the project directory:
 
 ```bash
-skill-manager install .
+skm install .
 ```
 
 This does two things:
 
-1. Writes `~/.config/skill-manager/config.json` pointing back to this repo — the bridge between the CLI and the in-Claude skill.
-2. Copies `src/skills/claude-skill-manager/` into the target project's `.claude/skills/`.
+1. Writes `~/.config/skm/config.json` pointing back to this repo — the bridge between the CLI and the in-Claude skill.
+2. Copies `src/skills/skm/` into the target project's `.claude/skills/skm/`.
 
 Re-run this command any time you move the repo.
 
-## Using the skill inside Claude Code
+## Using SKM inside Claude Code
 
 Open a Claude Code session in your project and say any of:
 
-- `"list skills in the library"`
-- `"install a skill"`
-- `"install a command"`
-- `"save skill to library"`
-- `"save command to library"`
-- `"skill library"`
+- `"SKM"`
+- `"SKM list"`
+- `"SKM install"`
+- `"SKM save"`
+- `"SKM library"`
+- `"SKM help"`
 
-The skill reads `~/.config/skill-manager/config.json` to find the library, then presents an interactive menu for listing, installing, and saving skills and commands.
+SKM reads `~/.config/skm/config.json` to find the library, then presents an interactive menu:
+
+| Action | What it does |
+|---|---|
+| **SKM List** | Show all skills and commands in the library |
+| **SKM Install** | Copy a skill or command from the library into this project |
+| **SKM Save** | Copy a skill or command from this project to the library (with optional git commit) |
 
 ## Commands in this library
 
@@ -79,4 +91,4 @@ The skill reads `~/.config/skill-manager/config.json` to find the library, then 
 
 ## Adding your own skills/commands
 
-Use the "Save" action in the in-Claude skill manager, or manually copy files into `.claude/commands/` (for commands) or `.claude/skills/<name>/` (for skills) and commit.
+Use **SKM Save** inside Claude Code, or manually copy files into `.claude/commands/` (for commands) or `.claude/skills/<name>/` (for skills) and commit.
