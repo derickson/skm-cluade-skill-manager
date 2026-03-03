@@ -89,6 +89,10 @@ SKM reads `~/.config/skm/config.json` to find the library, then presents an inte
 | `serve-stop` | Stop running Python HTTP servers |
 | `servers` | List and manage running Python HTTP servers |
 
+## Further reading
+
+- [skm CLI reference](docs/skm-cli.md) — full documentation for the `skm` command-line tool
+
 ## Adding your own skills/commands
 
 Use **SKM Save** inside Claude Code, or manually copy files into `.claude/commands/` (for commands) or `.claude/skills/<name>/` (for skills) and commit.
