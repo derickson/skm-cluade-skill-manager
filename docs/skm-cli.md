@@ -1,6 +1,6 @@
 # skm CLI Reference
 
-`skm` is a small Python CLI for bootstrapping the SKM skill into Claude Code projects. It requires no dependencies beyond the Python standard library.
+`skm` is a Python CLI for managing Claude Code skills and commands. It requires no dependencies beyond the Python standard library.
 
 ## Installation
 
@@ -49,7 +49,7 @@ Bootstraps SKM into a Claude Code project. Does two things:
 }
 ```
 
-This file is the bridge between the CLI and the in-Claude SKM skill. It tells the skill where the library lives. Running `skm install` in any project always refreshes this config to point at the current repo location.
+This file is read by every other `skm` command and by the in-Claude SKM skill to locate the library. Running `skm install` always refreshes it to point at the current repo location.
 
 **2. Copies `src/skills/skm/` into the target project**
 
@@ -59,7 +59,7 @@ Destination: `<target>/.claude/skills/skm/`
 If the destination already exists, you are prompted:
 
 ```
-'skm' already exists in /path/to/project. Overwrite? [y/N]
+'skm' already exists. Overwrite? [y/N]
 ```
 
 Enter `y` to overwrite, anything else to skip the copy (config is still written).
@@ -73,26 +73,128 @@ Enter `y` to overwrite, anything else to skip the copy (config is still written)
 **Examples:**
 
 ```bash
-# Install into the current directory
-skm install
+skm install               # install into current directory
+skm install ~/dev/myapp   # install into a specific project
+```
 
-# Install into a specific project
-skm install ~/dev/my-project
+---
 
-# Install into multiple projects
-skm install ~/dev/project-a
-skm install ~/dev/project-b
+### `skm list`
+
+Lists all commands and skills available in the library. Requires config to be present.
+
+**Output:**
+
+```
+SKM library: /path/to/claude-skill-manager
+
+Commands:
+  git-auto-commit.md
+  serve.md
+  ...
+
+Skills:
+  my-skill/
+  ...
+```
+
+**Example:**
+
+```bash
+skm list
+```
+
+---
+
+### `skm pull <type> <name> [--force]`
+
+Copies a command or skill from the library into the current project's `.claude/` directory.
+
+**Arguments:**
+
+| Argument | Description |
+|---|---|
+| `type` | `command` or `skill` |
+| `name` | Filename of the command (e.g. `git-auto-commit.md`) or directory name of the skill |
+
+**Flags:**
+
+| Flag | Description |
+|---|---|
+| `--force`, `-f` | Skip the overwrite confirmation prompt |
+
+If the item does not exist in the library, `skm` exits with an error and lists what is available.
+
+If the destination already exists in the project and `--force` is not set, you are prompted:
+
+```
+'<name>' already exists. Overwrite? [y/N]
+```
+
+The destination directory (`.claude/commands/` or `.claude/skills/`) is created if it does not exist.
+
+**Examples:**
+
+```bash
+skm pull command git-auto-commit.md
+skm pull skill my-skill
+skm pull command git-auto-commit.md --force   # skip prompt
+```
+
+---
+
+### `skm push <type> <name> [--force] [--commit | --no-commit]`
+
+Copies a command or skill from the current project into the library.
+
+**Arguments:**
+
+| Argument | Description |
+|---|---|
+| `type` | `command` or `skill` |
+| `name` | Filename of the command or directory name of the skill |
+
+**Flags:**
+
+| Flag | Description |
+|---|---|
+| `--force`, `-f` | Skip the overwrite confirmation prompt |
+| `--commit` | Commit the change to the library git repo without prompting |
+| `--no-commit` | Skip the git commit without prompting |
+
+`--commit` and `--no-commit` are mutually exclusive. Without either flag, you are prompted interactively:
+
+```
+Commit to library repo? [y/N]
+```
+
+If the item does not exist in the project, `skm` exits with an error and lists what is available.
+
+If the destination already exists in the library and `--force` is not set, you are prompted:
+
+```
+'<name> (in library)' already exists. Overwrite? [y/N]
+```
+
+When committing, the commit message is:
+
+```
+SKM: add/update <name> from <current-directory-name>
+```
+
+**Examples:**
+
+```bash
+skm push command my-command.md
+skm push skill my-skill --commit
+skm push command my-command.md --force --no-commit
 ```
 
 ---
 
 ## Config file
 
-`~/.config/skm/config.json` is written by `skm install` and read by the in-Claude SKM skill at runtime.
-
-```
-~/.config/skm/config.json
-```
+`~/.config/skm/config.json` is written by `skm install` and read by all other subcommands and by the in-Claude SKM skill.
 
 ```json
 {
@@ -100,12 +202,25 @@ skm install ~/dev/project-b
 }
 ```
 
-`repo_path` is the absolute path to the SKM library repo. The in-Claude skill uses it to locate `.claude/commands/` and `.claude/skills/` when listing or copying library content.
+**Error conditions handled at startup:**
 
-If this file is missing or has a stale path, the in-Claude skill will tell you to re-run `skm install`.
+| Condition | Error message |
+|---|---|
+| File missing | `SKM is not configured. Run: skm install <project-path>` |
+| Invalid JSON | `config.json contains invalid JSON` |
+| Missing `repo_path` key | `config.json is missing 'repo_path'` |
+| `repo_path` directory not found | `Library repo not found at <path>` |
 
 ---
 
-## Scope
+## Relationship to the in-Claude SKM skill
 
-The CLI handles bootstrapping only. All library management (listing, installing, and saving skills and commands) is done interactively inside Claude Code via the SKM skill. See the main [README](../README.md) for the in-Claude workflow.
+The `skm` CLI and the in-Claude SKM skill are complementary:
+
+| Task | Tool |
+|---|---|
+| First-time setup, installing SKM into a project | `skm install` |
+| Library management from the terminal | `skm list`, `skm pull`, `skm push` |
+| Library management from inside Claude Code | Say `"SKM"` to activate the in-Claude skill |
+
+The in-Claude skill calls `skm list`, `skm pull`, and `skm push` internally, passing `--force` after confirming with the user. Both interfaces share the same config and library.
