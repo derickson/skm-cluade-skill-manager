@@ -13,6 +13,7 @@ src/
       SKILL.md       # The SKM in-Claude skill (installed into projects)
 .claude/
   commands/          # SKM library — distributable slash commands
+  skills/            # SKM library — distributable skills
 skill_manager.py     # SKM CLI (installed as `skm`)
 Makefile             # skm install / uninstall
 ```
@@ -79,15 +80,20 @@ SKM reads `~/.config/skm/config.json` to find the library, then presents an inte
 | **SKM Install** | Copy a skill or command from the library into this project |
 | **SKM Save** | Copy a skill or command from this project to the library (with optional git commit) |
 
-## Commands in this library
+## Library contents
+
+**Commands**
 
 | Command | Description |
 |---|---|
 | `git-auto-commit` | Add and commit all changes with a descriptive message |
 | `git-issuebranch-cleanup` | Delete remote branches for merged/closed PRs |
-| `serve` | Serve a directory via Python's HTTP server |
-| `serve-stop` | Stop running Python HTTP servers |
-| `servers` | List and manage running Python HTTP servers |
+
+**Skills**
+
+| Skill | Description |
+|---|---|
+| `python-http-server` | Start, list, and stop Python simple HTTP servers |
 
 ## Further reading
 
